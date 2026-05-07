@@ -74,3 +74,61 @@ class KnapsackSolver:
 
         # Повертаємо ціну, всю таблицю і список предметів
         return dp[self.n][self.capacity], dp, selected_items
+
+    def greedy_approach(self):
+        # Жадібний алгоритм: сортуємо речі за вигідністю (ціна / вага)
+        items = []
+        for i in range(self.n):
+            items.append({
+                'id': i + 1,
+                'w': self.weights[i],
+                'v': self.values[i],
+                'ratio': self.values[i] / self.weights[i]
+            })
+
+        # Сортуємо так, щоб найвигідніші були зверху
+        items.sort(key=lambda x: x['ratio'], reverse=True)
+
+        current_v = 0
+        current_w = 0
+        selected = []
+
+        for item in items:
+            # Якщо річ ще влізає - беремо її
+            if current_w + item['w'] <= self.capacity:
+                current_w += item['w']
+                current_v += item['v']
+                selected.append(item['id'])
+
+        return current_v, sorted(selected)
+
+    def branch_and_bound(self):
+        # Метод гілок і меж: шукаємо через дерево, але відкидаємо завідомо погані гілки
+        self.best_v = 0
+
+        # Функція для оцінки межі (максимум, що можна витиснути з цієї гілки)
+        def bound(i, w, v):
+            if w >= self.capacity: return 0
+            temp_v = v
+            temp_w = w
+            j = i
+            while j < self.n and temp_w + self.weights[j] <= self.capacity:
+                temp_w += self.weights[j]
+                temp_v += self.values[j]
+                j += 1
+            return temp_v
+
+        # Сама рекурсія з перевіркою межі
+        def check(i, w, v):
+            if i < self.n and v + bound(i, w, v) > self.best_v:
+                # Варіант 1: беремо цей предмет
+                if w + self.weights[i] <= self.capacity:
+                    if v + self.values[i] > self.best_v:
+                        self.best_v = v + self.values[i]
+                    check(i + 1, w + self.weights[i], v + self.values[i])
+
+                # Варіант 2: пропускаємо цей предмет
+                check(i + 1, w, v)
+
+        check(0, 0, 0)
+        return self.best_v

@@ -17,7 +17,7 @@ solver = KnapsackSolver(weights, values, capacity)
 
 # Вибір методу збоку
 st.sidebar.header("Меню")
-method = st.sidebar.selectbox("Оберіть метод:", ["Brute Force", "Recursive", "Dynamic Programming"])
+method = st.sidebar.selectbox("Оберіть метод:", ["Brute Force", "Recursive", "Dynamic Programming", "Greedy", "Branch & Bound"])
 
 if method == "Brute Force":
     val, items = solver.brute_force()
@@ -38,3 +38,14 @@ elif method == "Dynamic Programming":
     # Виводимо матрицю у вигляді таблиці
     df = pd.DataFrame(matrix)
     st.dataframe(df)
+
+elif method == "Greedy":
+    val, items = solver.greedy_approach()
+    st.success(f"Результат жадібного методу: {val}")
+    st.write(f"Предмети: {items}")
+    st.warning("Жадібний метод може помилятися і давати не найкращий результат.")
+
+elif method == "Branch & Bound":
+    val = solver.branch_and_bound()
+    st.success(f"Результат методу гілок і меж: {val}")
+    st.info("Цей метод працює швидше за повний перебір, бо відсікає непотрібні варіанти.")
