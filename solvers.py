@@ -46,3 +46,31 @@ class KnapsackSolver:
             self.values[n - 1] + self.solve_recursive(n - 1, cap - self.weights[n - 1]),
             self.solve_recursive(n - 1, cap)
         )
+
+    def solve_dp(self):
+        # Динамічне програмування: робимо таблицю (матрицю)
+        # Спочатку заповнюємо все нулями
+        dp = [[0] * (self.capacity + 1) for _ in range(self.n + 1)]
+
+        for i in range(1, self.n + 1):
+            for w in range(self.capacity + 1):
+                # Якщо предмет влізає по вазі
+                if self.weights[i - 1] <= w:
+                    # Шукаємо максимум між "взяти" і "не взяти"
+                    dp[i][w] = max(self.values[i - 1] + dp[i - 1][w - self.weights[i - 1]],
+                                   dp[i - 1][w])
+                else:
+                    # Якщо не вліз - копіюємо значення зверху
+                    dp[i][w] = dp[i - 1][w]
+
+        # Тепер йдемо по таблиці назад, щоб знайти вибрані предмети
+        selected_items = []
+        w = self.capacity
+        for i in range(self.n, 0, -1):
+            # Якщо значення в клітинці змінилось - значить предмет у рюкзаку
+            if dp[i][w] != dp[i - 1][w]:
+                selected_items.append(i)
+                w -= self.weights[i - 1]
+
+        # Повертаємо ціну, всю таблицю і список предметів
+        return dp[self.n][self.capacity], dp, selected_items
