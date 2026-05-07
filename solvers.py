@@ -75,6 +75,17 @@ class KnapsackSolver:
         # Повертаємо ціну, всю таблицю і список предметів
         return dp[self.n][self.capacity], dp, selected_items
 
+    def solve_dp_animated(self):
+        # Метод-генератор для анімації в Streamlit
+        dp = [[0] * (self.capacity + 1) for _ in range(self.n + 1)]
+        for i in range(1, self.n + 1):
+            for w in range(self.capacity + 1):
+                if self.weights[i - 1] <= w:
+                    dp[i][w] = max(self.values[i - 1] + dp[i - 1][w - self.weights[i - 1]], dp[i - 1][w])
+                else:
+                    dp[i][w] = dp[i - 1][w]
+                yield dp, i, w  # Віддаємо проміжний стан таблиці
+
     def greedy_approach(self):
         # Жадібний алгоритм: сортуємо речі за вигідністю (ціна / вага)
         items = []
